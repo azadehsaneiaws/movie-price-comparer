@@ -24,14 +24,21 @@
             try
             {
                 var response = await _httpClient.GetAsync("movies");
+
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Cinemaworld GetMovies failed with status: {StatusCode}", response.StatusCode);
+                    _logger.LogWarning("Cinemaworld GetMovies failed. Status: {StatusCode}", response.StatusCode);
                     return Enumerable.Empty<Movie>();
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
-                var root = JsonSerializer.Deserialize<MovieListResponse>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                _logger.LogInformation("Received from Cinemaworld: {Content}", content); // <== Add this
+
+                var root = JsonSerializer.Deserialize<MovieListResponse>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
                 return root?.Movies ?? Enumerable.Empty<Movie>();
             }
             catch (Exception ex)
@@ -40,6 +47,7 @@
                 return Enumerable.Empty<Movie>();
             }
         }
+
 
         public async Task<MovieDetail?> GetMovieDetailsAsync(string id)
         {

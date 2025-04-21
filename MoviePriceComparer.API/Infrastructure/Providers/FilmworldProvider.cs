@@ -25,13 +25,16 @@
             try
             {
                 var response = await _httpClient.GetAsync("movies");
+
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Filmworld GetMovies failed with status: {StatusCode}", response.StatusCode);
+                    _logger.LogWarning("FilmWorld GetMovies failed. Status: {StatusCode}", response.StatusCode);
                     return Enumerable.Empty<Movie>();
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("Received from filmaworld: {Content}", content); // <== Add this
+
                 var root = JsonSerializer.Deserialize<MovieListResponse>(content, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
@@ -45,6 +48,7 @@
                 return Enumerable.Empty<Movie>();
             }
         }
+
 
         public async Task<MovieDetail?> GetMovieDetailsAsync(string id)
         {
